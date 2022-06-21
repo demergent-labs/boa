@@ -395,3 +395,26 @@ JsTypedArrayType!(JsUint32Array, Uint32Array, typed_uint32_array, u32);
 JsTypedArrayType!(JsInt32Array, Int32Array, typed_int32_array, i32);
 JsTypedArrayType!(JsFloat32Array, Float32Array, typed_float32_array, f32);
 JsTypedArrayType!(JsFloat64Array, Float64Array, typed_float64_array, f64);
+
+impl From<Vec<u8>> for JsObject {
+    #[inline]
+    fn from(o: Vec<u8>) -> Self {
+        let o_len = o.len();
+
+        let array_buffer = crate::builtins::array_buffer::ArrayBuffer {
+            array_buffer_data: Some(o),
+            array_buffer_byte_length: o_len,
+            array_buffer_detach_key: JsValue::undefined()
+        };            
+
+        let uint8_array_js_object = crate::object::JsObject::from_proto_and_data(
+            Context::default().intrinsics().constructors().typed_uint8_array().prototype(),
+            crate::object::ObjectData {
+                kind: crate::object::ObjectKind::ArrayBuffer(array_buffer),
+                internal_methods: &crate::object::internal_methods::ORDINARY_INTERNAL_METHODS
+            }
+        );
+
+        uint8_array_js_object
+    }
+}
