@@ -15,14 +15,14 @@ use crate::{
 };
 use boa_profiler::Profiler;
 
-pub(super) mod arguments;
-pub(super) mod array;
-pub(super) mod bound_function;
-pub(super) mod function;
-pub(crate) mod global;
-pub(super) mod integer_indexed;
-pub(super) mod proxy;
-pub(super) mod string;
+pub mod arguments;
+pub mod array;
+pub mod bound_function;
+pub mod function;
+pub mod global;
+pub mod integer_indexed;
+pub mod proxy;
+pub mod string;
 
 impl JsObject {
     /// Internal method `[[GetPrototypeOf]]`
@@ -35,7 +35,7 @@ impl JsObject {
     /// [spec]: https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots-getprototypeof
     #[inline]
     #[track_caller]
-    pub(crate) fn __get_prototype_of__(&self, context: &mut Context) -> JsResult<JsPrototype> {
+    pub fn __get_prototype_of__(&self, context: &mut Context) -> JsResult<JsPrototype> {
         let _timer = Profiler::global().start_event("Object::__get_prototype_of__", "object");
         let func = self.borrow().data.internal_methods.__get_prototype_of__;
         func(self, context)
@@ -50,7 +50,7 @@ impl JsObject {
     ///
     /// [spec]: https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots-setprototypeof-v
     #[inline]
-    pub(crate) fn __set_prototype_of__(
+    pub fn __set_prototype_of__(
         &self,
         val: JsPrototype,
         context: &mut Context,
@@ -69,7 +69,7 @@ impl JsObject {
     ///
     /// [spec]: https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots-isextensible
     #[inline]
-    pub(crate) fn __is_extensible__(&self, context: &mut Context) -> JsResult<bool> {
+    pub fn __is_extensible__(&self, context: &mut Context) -> JsResult<bool> {
         let _timer = Profiler::global().start_event("Object::__is_extensible__", "object");
         let func = self.borrow().data.internal_methods.__is_extensible__;
         func(self, context)
@@ -84,7 +84,7 @@ impl JsObject {
     ///
     /// [spec]: https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots-preventextensions
     #[inline]
-    pub(crate) fn __prevent_extensions__(&self, context: &mut Context) -> JsResult<bool> {
+    pub fn __prevent_extensions__(&self, context: &mut Context) -> JsResult<bool> {
         let _timer = Profiler::global().start_event("Object::__prevent_extensions__", "object");
         let func = self.borrow().data.internal_methods.__prevent_extensions__;
         func(self, context)
@@ -99,7 +99,7 @@ impl JsObject {
     ///
     /// [spec]: https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots-getownproperty-p
     #[inline]
-    pub(crate) fn __get_own_property__(
+    pub fn __get_own_property__(
         &self,
         key: &PropertyKey,
         context: &mut Context,
@@ -118,7 +118,7 @@ impl JsObject {
     ///
     /// [spec]: https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots-defineownproperty-p-desc
     #[inline]
-    pub(crate) fn __define_own_property__(
+    pub fn __define_own_property__(
         &self,
         key: PropertyKey,
         desc: PropertyDescriptor,
@@ -138,7 +138,7 @@ impl JsObject {
     ///
     /// [spec]: https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots-hasproperty-p
     #[inline]
-    pub(crate) fn __has_property__(
+    pub fn __has_property__(
         &self,
         key: &PropertyKey,
         context: &mut Context,
@@ -157,7 +157,7 @@ impl JsObject {
     ///
     /// [spec]: https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots-get-p-receiver
     #[inline]
-    pub(crate) fn __get__(
+    pub fn __get__(
         &self,
         key: &PropertyKey,
         receiver: JsValue,
@@ -177,7 +177,7 @@ impl JsObject {
     ///
     /// [spec]: https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots-set-p-v-receiver
     #[inline]
-    pub(crate) fn __set__(
+    pub fn __set__(
         &self,
         key: PropertyKey,
         value: JsValue,
@@ -198,7 +198,7 @@ impl JsObject {
     ///
     /// [spec]: https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots-delete-p
     #[inline]
-    pub(crate) fn __delete__(&self, key: &PropertyKey, context: &mut Context) -> JsResult<bool> {
+    pub fn __delete__(&self, key: &PropertyKey, context: &mut Context) -> JsResult<bool> {
         let _timer = Profiler::global().start_event("Object::__delete__", "object");
         let func = self.borrow().data.internal_methods.__delete__;
         func(self, key, context)
@@ -214,7 +214,7 @@ impl JsObject {
     /// [spec]: https://tc39.es/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots-ownpropertykeys
     #[inline]
     #[track_caller]
-    pub(crate) fn __own_property_keys__(
+    pub fn __own_property_keys__(
         &self,
         context: &mut Context,
     ) -> JsResult<Vec<PropertyKey>> {
@@ -233,7 +233,7 @@ impl JsObject {
     /// [spec]: https://tc39.es/ecma262/#sec-ecmascript-function-objects-call-thisargument-argumentslist
     #[inline]
     #[track_caller]
-    pub(crate) fn __call__(
+    pub fn __call__(
         &self,
         this: &JsValue,
         args: &[JsValue],
@@ -256,7 +256,7 @@ impl JsObject {
     /// [spec]: https://tc39.es/ecma262/#sec-ecmascript-function-objects-construct-argumentslist-newtarget
     #[inline]
     #[track_caller]
-    pub(crate) fn __construct__(
+    pub fn __construct__(
         &self,
         args: &[JsValue],
         new_target: &JsValue,
@@ -281,7 +281,7 @@ impl JsObject {
 /// Then, reference this static in the creation phase of an `ObjectData`.
 ///
 /// E.g. `ObjectData::string`
-pub(crate) static ORDINARY_INTERNAL_METHODS: InternalObjectMethods = InternalObjectMethods {
+pub static ORDINARY_INTERNAL_METHODS: InternalObjectMethods = InternalObjectMethods {
     __get_prototype_of__: ordinary_get_prototype_of,
     __set_prototype_of__: ordinary_set_prototype_of,
     __is_extensible__: ordinary_is_extensible,
@@ -306,24 +306,24 @@ pub(crate) static ORDINARY_INTERNAL_METHODS: InternalObjectMethods = InternalObj
 /// For a guide on how to implement exotic internal methods, see `ORDINARY_INTERNAL_METHODS`.
 #[derive(Clone, Copy)]
 #[allow(clippy::type_complexity)]
-pub(crate) struct InternalObjectMethods {
-    pub(crate) __get_prototype_of__: fn(&JsObject, &mut Context) -> JsResult<JsPrototype>,
-    pub(crate) __set_prototype_of__: fn(&JsObject, JsPrototype, &mut Context) -> JsResult<bool>,
-    pub(crate) __is_extensible__: fn(&JsObject, &mut Context) -> JsResult<bool>,
-    pub(crate) __prevent_extensions__: fn(&JsObject, &mut Context) -> JsResult<bool>,
-    pub(crate) __get_own_property__:
+pub struct InternalObjectMethods {
+    pub __get_prototype_of__: fn(&JsObject, &mut Context) -> JsResult<JsPrototype>,
+    pub __set_prototype_of__: fn(&JsObject, JsPrototype, &mut Context) -> JsResult<bool>,
+    pub __is_extensible__: fn(&JsObject, &mut Context) -> JsResult<bool>,
+    pub __prevent_extensions__: fn(&JsObject, &mut Context) -> JsResult<bool>,
+    pub __get_own_property__:
         fn(&JsObject, &PropertyKey, &mut Context) -> JsResult<Option<PropertyDescriptor>>,
-    pub(crate) __define_own_property__:
+    pub __define_own_property__:
         fn(&JsObject, PropertyKey, PropertyDescriptor, &mut Context) -> JsResult<bool>,
-    pub(crate) __has_property__: fn(&JsObject, &PropertyKey, &mut Context) -> JsResult<bool>,
-    pub(crate) __get__: fn(&JsObject, &PropertyKey, JsValue, &mut Context) -> JsResult<JsValue>,
-    pub(crate) __set__:
+    pub __has_property__: fn(&JsObject, &PropertyKey, &mut Context) -> JsResult<bool>,
+    pub __get__: fn(&JsObject, &PropertyKey, JsValue, &mut Context) -> JsResult<JsValue>,
+    pub __set__:
         fn(&JsObject, PropertyKey, JsValue, JsValue, &mut Context) -> JsResult<bool>,
-    pub(crate) __delete__: fn(&JsObject, &PropertyKey, &mut Context) -> JsResult<bool>,
-    pub(crate) __own_property_keys__: fn(&JsObject, &mut Context) -> JsResult<Vec<PropertyKey>>,
-    pub(crate) __call__:
+    pub __delete__: fn(&JsObject, &PropertyKey, &mut Context) -> JsResult<bool>,
+    pub __own_property_keys__: fn(&JsObject, &mut Context) -> JsResult<Vec<PropertyKey>>,
+    pub __call__:
         Option<fn(&JsObject, &JsValue, &[JsValue], &mut Context) -> JsResult<JsValue>>,
-    pub(crate) __construct__:
+    pub __construct__:
         Option<fn(&JsObject, &[JsValue], &JsValue, &mut Context) -> JsResult<JsValue>>,
 }
 
@@ -335,7 +335,7 @@ pub(crate) struct InternalObjectMethods {
 /// [spec]: https://tc39.es/ecma262/#sec-ordinarygetprototypeof
 #[inline]
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn ordinary_get_prototype_of(
+pub fn ordinary_get_prototype_of(
     obj: &JsObject,
     _context: &mut Context,
 ) -> JsResult<JsPrototype> {
@@ -353,7 +353,7 @@ pub(crate) fn ordinary_get_prototype_of(
 /// [spec]: https://tc39.es/ecma262/#sec-ordinarysetprototypeof
 #[inline]
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn ordinary_set_prototype_of(
+pub fn ordinary_set_prototype_of(
     obj: &JsObject,
     val: JsPrototype,
     _: &mut Context,
@@ -413,7 +413,7 @@ pub(crate) fn ordinary_set_prototype_of(
 /// [spec]: https://tc39.es/ecma262/#sec-ordinaryisextensible
 #[inline]
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn ordinary_is_extensible(obj: &JsObject, _context: &mut Context) -> JsResult<bool> {
+pub fn ordinary_is_extensible(obj: &JsObject, _context: &mut Context) -> JsResult<bool> {
     // 1. Return O.[[Extensible]].
     Ok(obj.borrow().extensible)
 }
@@ -426,7 +426,7 @@ pub(crate) fn ordinary_is_extensible(obj: &JsObject, _context: &mut Context) -> 
 /// [spec]: https://tc39.es/ecma262/#sec-ordinarypreventextensions
 #[inline]
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn ordinary_prevent_extensions(
+pub fn ordinary_prevent_extensions(
     obj: &JsObject,
     _context: &mut Context,
 ) -> JsResult<bool> {
@@ -445,7 +445,7 @@ pub(crate) fn ordinary_prevent_extensions(
 /// [spec]: https://tc39.es/ecma262/#sec-ordinarygetownproperty
 #[inline]
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn ordinary_get_own_property(
+pub fn ordinary_get_own_property(
     obj: &JsObject,
     key: &PropertyKey,
     _context: &mut Context,
@@ -475,7 +475,7 @@ pub(crate) fn ordinary_get_own_property(
 ///
 /// [spec]: https://tc39.es/ecma262/#sec-ordinarydefineownproperty
 #[inline]
-pub(crate) fn ordinary_define_own_property(
+pub fn ordinary_define_own_property(
     obj: &JsObject,
     key: PropertyKey,
     desc: PropertyDescriptor,
@@ -504,7 +504,7 @@ pub(crate) fn ordinary_define_own_property(
 ///
 /// [spec]: https://tc39.es/ecma262/#sec-ordinaryhasproperty
 #[inline]
-pub(crate) fn ordinary_has_property(
+pub fn ordinary_has_property(
     obj: &JsObject,
     key: &PropertyKey,
     context: &mut Context,
@@ -534,7 +534,7 @@ pub(crate) fn ordinary_has_property(
 ///
 /// [spec]: https://tc39.es/ecma262/#sec-ordinaryget
 #[inline]
-pub(crate) fn ordinary_get(
+pub fn ordinary_get(
     obj: &JsObject,
     key: &PropertyKey,
     receiver: JsValue,
@@ -580,7 +580,7 @@ pub(crate) fn ordinary_get(
 ///
 /// [spec]: https://tc39.es/ecma262/#sec-ordinaryset
 #[inline]
-pub(crate) fn ordinary_set(
+pub fn ordinary_set(
     obj: &JsObject,
     key: PropertyKey,
     value: JsValue,
@@ -683,7 +683,7 @@ pub(crate) fn ordinary_set(
 ///
 /// [spec]: https://tc39.es/ecma262/#sec-ordinarydelete
 #[inline]
-pub(crate) fn ordinary_delete(
+pub fn ordinary_delete(
     obj: &JsObject,
     key: &PropertyKey,
     context: &mut Context,
@@ -716,7 +716,7 @@ pub(crate) fn ordinary_delete(
 /// [spec]: https://tc39.es/ecma262/#sec-ordinaryownpropertykeys
 #[inline]
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn ordinary_own_property_keys(
+pub fn ordinary_own_property_keys(
     obj: &JsObject,
     _context: &mut Context,
 ) -> JsResult<Vec<PropertyKey>> {
@@ -770,7 +770,7 @@ pub(crate) fn ordinary_own_property_keys(
 ///
 /// [spec]: https://tc39.es/ecma262/#sec-iscompatiblepropertydescriptor
 #[inline]
-pub(crate) fn is_compatible_property_descriptor(
+pub fn is_compatible_property_descriptor(
     extensible: bool,
     desc: PropertyDescriptor,
     current: Option<PropertyDescriptor>,
@@ -789,7 +789,7 @@ pub(crate) fn is_compatible_property_descriptor(
 ///
 /// [spec]: https://tc39.es/ecma262/#sec-validateandapplypropertydescriptor
 #[inline]
-pub(crate) fn validate_and_apply_property_descriptor(
+pub fn validate_and_apply_property_descriptor(
     obj_and_key: Option<(&JsObject, PropertyKey)>,
     extensible: bool,
     desc: PropertyDescriptor,
@@ -945,7 +945,7 @@ pub(crate) fn validate_and_apply_property_descriptor(
 /// [spec]: https://tc39.es/ecma262/#sec-getprototypefromconstructor
 #[inline]
 #[track_caller]
-pub(crate) fn get_prototype_from_constructor<F>(
+pub fn get_prototype_from_constructor<F>(
     constructor: &JsValue,
     default: F,
     context: &mut Context,

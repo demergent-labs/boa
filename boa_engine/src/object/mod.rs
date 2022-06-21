@@ -57,7 +57,7 @@ use std::{
 #[cfg(test)]
 mod tests;
 
-pub(crate) mod internal_methods;
+pub mod internal_methods;
 mod jsarray;
 mod jsfunction;
 mod jsobject;
@@ -130,8 +130,8 @@ pub(crate) enum PrivateElement {
 /// Defines the kind of an object and its internal methods
 #[derive(Trace, Finalize)]
 pub struct ObjectData {
-    kind: ObjectKind,
-    internal_methods: &'static InternalObjectMethods,
+    pub kind: ObjectKind,
+    pub internal_methods: &'static InternalObjectMethods,
 }
 
 /// Defines the different types of objects.

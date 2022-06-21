@@ -38,7 +38,7 @@
     unreachable_pub,
     trivial_numeric_casts,
     // rustdoc,
-    missing_debug_implementations,
+    // missing_debug_implementations,
     missing_copy_implementations,
     deprecated_in_future,
     meta_variable_misuse,
