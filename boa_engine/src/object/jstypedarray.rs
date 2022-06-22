@@ -396,7 +396,7 @@ JsTypedArrayType!(JsInt32Array, Int32Array, typed_int32_array, i32);
 JsTypedArrayType!(JsFloat32Array, Float32Array, typed_float32_array, f32);
 JsTypedArrayType!(JsFloat64Array, Float64Array, typed_float64_array, f64);
 
-impl From<Vec<u8>> for JsObject {
+impl From<Vec<u8>> for JsValue {
     #[inline]
     fn from(o: Vec<u8>) -> Self {
         let o_len = o.len();
@@ -405,16 +405,26 @@ impl From<Vec<u8>> for JsObject {
             array_buffer_data: Some(o),
             array_buffer_byte_length: o_len,
             array_buffer_detach_key: JsValue::undefined()
-        };            
+        };     
+        
+        let mut context = Context::default();
 
-        let uint8_array_js_object = crate::object::JsObject::from_proto_and_data(
-            Context::default().intrinsics().constructors().typed_uint8_array().prototype(),
+        let array_buffer_js_object = crate::object::JsObject::from_proto_and_data(
+            context.intrinsics().constructors().array_buffer().prototype(),
             crate::object::ObjectData {
                 kind: crate::object::ObjectKind::ArrayBuffer(array_buffer),
                 internal_methods: &crate::object::internal_methods::ORDINARY_INTERNAL_METHODS
             }
         );
 
-        uint8_array_js_object
+        let uint8_array_constructor = Context::default().intrinsics().constructors().typed_uint8_array().constructor();
+
+        let uint8_array_js_value = uint8_array_constructor.construct(
+            &[array_buffer_js_object.into()],
+            &uint8_array_constructor.clone().into(),
+            &mut context
+        ).unwrap();
+
+        uint8_array_js_value
     }
 }
