@@ -73,7 +73,7 @@ pub struct Context {
     pub(crate) realm: Realm,
 
     /// String interner in the context.
-    interner: Interner,
+    pub interner: Interner,
 
     /// console object state.
     #[cfg(feature = "console")]
@@ -85,7 +85,7 @@ pub struct Context {
     /// Whether or not global strict mode is active.
     strict: bool,
 
-    pub(crate) vm: Vm,
+    pub vm: Vm,
 }
 
 impl Default for Context {

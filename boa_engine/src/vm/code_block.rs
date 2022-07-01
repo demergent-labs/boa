@@ -54,7 +54,7 @@ unsafe impl Readable for f64 {}
 #[derive(Clone, Debug, Trace, Finalize)]
 pub struct CodeBlock {
     /// Name of this function
-    pub(crate) name: Sym,
+    pub name: Sym,
 
     /// The number of arguments expected.
     pub(crate) length: u32,
