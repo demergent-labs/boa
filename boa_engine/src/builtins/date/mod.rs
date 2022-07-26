@@ -81,7 +81,7 @@ unsafe impl Trace for Date {
 
 impl Default for Date {
     fn default() -> Self {
-        Self(Some(Utc::now().naive_utc()))
+        Self(Some(naive_date_time_now()))
     }
 }
 
@@ -182,7 +182,7 @@ impl Date {
     #[inline]
     pub fn to_local(self) -> Option<DateTime<Local>> {
         self.0
-            .map(|utc| Local::now().timezone().from_utc_datetime(&utc))
+            .map(|utc| local_date_time_from_naive_date_time(naive_date_time_now()).timezone().from_utc_datetime(&utc))
     }
 
     /// Converts the `Date` to a UTC `DateTime`.
@@ -190,7 +190,7 @@ impl Date {
     /// If the `Date` is invalid (i.e. NAN), this function will return `None`.
     pub fn to_utc(self) -> Option<DateTime<Utc>> {
         self.0
-            .map(|utc| Utc::now().timezone().from_utc_datetime(&utc))
+            .map(|utc| utc_date_time_from_naive_date_time(naive_date_time_now()).timezone().from_utc_datetime(&utc))
     }
 
     /// Optionally sets the individual components of the `Date`.
@@ -360,7 +360,7 @@ impl Date {
     /// [spec]: https://tc39.es/ecma262/#sec-date-constructor
     /// [mdn]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date
     pub(crate) fn make_date_string() -> JsValue {
-        JsValue::new(Local::now().to_rfc3339())
+        JsValue::new(local_date_time_from_naive_date_time(naive_date_time_now()).to_rfc3339())
     }
 
     /// `Date()`
@@ -715,7 +715,7 @@ impl Date {
 
         // 3. Return (t - LocalTime(t)) / msPerMinute.
         Ok(JsValue::new(
-            f64::from(-Local::now().offset().local_minus_utc()) / 60f64,
+            f64::from(-local_date_time_from_naive_date_time(naive_date_time_now()).offset().local_minus_utc()) / 60f64,
         ))
     }
 
@@ -1634,7 +1634,7 @@ impl Date {
         // 4. Let t be LocalTime(tv).
         // 5. Return DateString(t).
         if let Some(t) = tv.0 {
-            Ok(Local::now()
+            Ok(local_date_time_from_naive_date_time(naive_date_time_now())
                 .timezone()
                 .from_utc_datetime(&t)
                 .format("%a %b %d %Y")
@@ -1678,7 +1678,7 @@ impl Date {
         context: &mut Context,
     ) -> JsResult<JsValue> {
         if let Some(t) = this_time_value(this, context)?.0 {
-            Ok(Utc::now()
+            Ok(utc_date_time_from_naive_date_time(naive_date_time_now())
                 .timezone()
                 .from_utc_datetime(&t)
                 .format("%Y-%m-%dT%H:%M:%S.%3fZ")
@@ -1736,7 +1736,7 @@ impl Date {
 
         // 2. Return ToDateString(tv).
         if let Some(t) = tv.0 {
-            Ok(Local::now()
+            Ok(local_date_time_from_naive_date_time(naive_date_time_now())
                 .timezone()
                 .from_utc_datetime(&t)
                 .format("%a %b %d %Y %H:%M:%S GMT%z")
@@ -1772,7 +1772,7 @@ impl Date {
         // 4. Let t be LocalTime(tv).
         // 5. Return the string-concatenation of TimeString(t) and TimeZoneString(tv).
         if let Some(t) = tv.0 {
-            Ok(Local::now()
+            Ok(local_date_time_from_naive_date_time(naive_date_time_now())
                 .timezone()
                 .from_utc_datetime(&t)
                 .format("%H:%M:%S GMT%z")
@@ -1826,7 +1826,7 @@ impl Date {
     /// [mdn]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now
     #[allow(clippy::unnecessary_wraps)]
     pub(crate) fn now(_: &JsValue, _: &[JsValue], _: &mut Context) -> JsResult<JsValue> {
-        Ok(JsValue::new(Utc::now().timestamp_millis() as f64))
+        Ok(JsValue::new(utc_date_time_from_naive_date_time(naive_date_time_now()).timestamp_millis() as f64))
     }
 
     /// `Date.parse()`
@@ -1931,4 +1931,17 @@ pub fn this_time_value(value: &JsValue, context: &mut Context) -> JsResult<Date>
         .as_object()
         .and_then(|obj| obj.borrow().as_date().copied())
         .ok_or_else(|| context.construct_type_error("'this' is not a Date"))
+}
+
+// TODO perhaps here we can pass in a method that will retrieve the time on a specific platform here
+fn naive_date_time_now() -> NaiveDateTime {
+    chrono::NaiveDateTime::from_timestamp((ic_cdk::api::time() / 1_000_000_000) as i64, 0)
+}
+
+fn utc_date_time_from_naive_date_time(naive_date_time: NaiveDateTime) -> DateTime<Utc> {
+    chrono::DateTime::<Utc>::from_utc(naive_date_time, Utc)
+}
+
+fn local_date_time_from_naive_date_time(naive_date_time: NaiveDateTime) -> DateTime<Local> {
+    chrono::DateTime::<Local>::from_utc(naive_date_time, FixedOffset::east(0)) // For canisters we assume the UTC timezone only
 }
