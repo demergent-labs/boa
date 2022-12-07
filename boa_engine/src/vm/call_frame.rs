@@ -8,7 +8,8 @@ use boa_gc::{Finalize, Gc, Trace};
 /// A `CallFrame` holds the state of a function call.
 #[derive(Clone, Debug, Finalize, Trace)]
 pub struct CallFrame {
-    pub(crate) code: Gc<CodeBlock>,
+    /// code
+    pub code: Gc<CodeBlock>,
     pub(crate) pc: usize,
     #[unsafe_ignore_trace]
     pub(crate) catch: Vec<CatchAddresses>,

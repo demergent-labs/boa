@@ -15,7 +15,7 @@ use boa_interner::ToInternedString;
 use boa_profiler::Profiler;
 use std::{convert::TryInto, mem::size_of, time::Instant};
 
-mod call_frame;
+pub mod call_frame;
 mod code_block;
 mod opcode;
 
@@ -35,7 +35,8 @@ mod tests;
 /// Virtual Machine.
 #[derive(Debug)]
 pub struct Vm {
-    pub(crate) frames: Vec<CallFrame>,
+    /// frames
+    pub frames: Vec<CallFrame>,
     pub(crate) stack: Vec<JsValue>,
     pub(crate) trace: bool,
     pub(crate) stack_size_limit: usize,

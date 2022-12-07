@@ -100,7 +100,7 @@ impl Display for Date {
 
 impl Default for Date {
     fn default() -> Self {
-        Self(Some(Utc::now().naive_utc()))
+        Self(Some(naive_date_time_now()))
     }
 }
 
@@ -200,7 +200,7 @@ impl Date {
             // a. Let now be the time value (UTC) identifying the current time.
             // b. Return ToDateString(now).
             return Ok(JsValue::new(
-                Local::now()
+                local_date_time_from_naive_date_time(naive_date_time_now())
                     .format("%a %b %d %Y %H:%M:%S GMT%:z")
                     .to_string(),
             ));
@@ -375,7 +375,7 @@ impl Date {
     /// [mdn]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now
     #[allow(clippy::unnecessary_wraps)]
     pub(crate) fn now(_: &JsValue, _: &[JsValue], _: &mut Context) -> JsResult<JsValue> {
-        Ok(JsValue::new(Utc::now().timestamp_millis()))
+        Ok(JsValue::new(utc_date_time_from_naive_date_time(naive_date_time_now()).timestamp_millis()))
     }
 
     /// `Date.parse()`
@@ -675,7 +675,7 @@ impl Date {
         some_or_nan!(this_time_value(this)?);
 
         // 3. Return (t - LocalTime(t)) / msPerMinute.
-        Ok(JsValue::from(-Local::now().offset().local_minus_utc() / 60))
+        Ok(JsValue::from(-local_date_time_from_naive_date_time(naive_date_time_now()).offset().local_minus_utc() / 60))
     }
 
     /// [`Date.prototype.setDate ( date )`][local] and
@@ -1175,7 +1175,7 @@ impl Date {
 
         // 4. Let t be LocalTime(tv).
         // 5. Return DateString(t).
-        Ok(Local::now()
+        Ok(local_date_time_from_naive_date_time(naive_date_time_now())
             .timezone()
             .from_utc_datetime(&tv)
             .format("%a %b %d %Y")
@@ -1201,7 +1201,7 @@ impl Date {
     ) -> JsResult<JsValue> {
         let t = this_time_value(this)?
             .ok_or_else(|| JsNativeError::range().with_message("Invalid time value"))?;
-        Ok(Utc::now()
+        Ok(utc_date_time_from_naive_date_time(naive_date_time_now())
             .timezone()
             .from_utc_datetime(&t)
             .format("%Y-%m-%dT%H:%M:%S.%3fZ")
@@ -1313,7 +1313,7 @@ impl Date {
         let Some(t) = this_time_value(this)? else {
             return Ok(js_string!("Invalid Date").into());
         };
-        Ok(Local::now()
+        Ok(local_date_time_from_naive_date_time(naive_date_time_now())
             .timezone()
             .from_utc_datetime(&t)
             .format("%a %b %d %Y %H:%M:%S GMT%z")
@@ -1345,7 +1345,7 @@ impl Date {
 
         // 4. Let t be LocalTime(tv).
         // 5. Return the string-concatenation of TimeString(t) and TimeZoneString(tv).
-        Ok(Local::now()
+        Ok(local_date_time_from_naive_date_time(naive_date_time_now())
             .timezone()
             .from_utc_datetime(&t)
             .format("%H:%M:%S GMT%z")
@@ -1474,4 +1474,17 @@ impl Date {
     pub(crate) fn to_local(self) -> Option<DateTime<Local>> {
         self.0.map(|utc| Local.from_utc_datetime(&utc))
     }
+}
+
+// TODO perhaps here we can pass in a method that will retrieve the time on a specific platform here
+fn naive_date_time_now() -> NaiveDateTime {
+    chrono::NaiveDateTime::from_timestamp_opt((ic_cdk::api::time() / 1_000_000_000) as i64, 0).unwrap()
+}
+
+fn utc_date_time_from_naive_date_time(naive_date_time: NaiveDateTime) -> DateTime<Utc> {
+    chrono::DateTime::<Utc>::from_utc(naive_date_time, Utc)
+}
+
+fn local_date_time_from_naive_date_time(naive_date_time: NaiveDateTime) -> DateTime<Local> {
+    chrono::DateTime::<Local>::from_utc(naive_date_time, FixedOffset::east_opt(0).unwrap()) // For canisters we assume the UTC timezone only
 }
