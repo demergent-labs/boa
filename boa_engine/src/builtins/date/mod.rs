@@ -375,7 +375,9 @@ impl Date {
     /// [mdn]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now
     #[allow(clippy::unnecessary_wraps)]
     pub(crate) fn now(_: &JsValue, _: &[JsValue], _: &mut Context) -> JsResult<JsValue> {
-        Ok(JsValue::new(utc_date_time_from_naive_date_time(naive_date_time_now()).timestamp_millis()))
+        Ok(JsValue::new(
+            utc_date_time_from_naive_date_time(naive_date_time_now()).timestamp_millis(),
+        ))
     }
 
     /// `Date.parse()`
@@ -675,7 +677,12 @@ impl Date {
         some_or_nan!(this_time_value(this)?);
 
         // 3. Return (t - LocalTime(t)) / msPerMinute.
-        Ok(JsValue::from(-local_date_time_from_naive_date_time(naive_date_time_now()).offset().local_minus_utc() / 60))
+        Ok(JsValue::from(
+            -local_date_time_from_naive_date_time(naive_date_time_now())
+                .offset()
+                .local_minus_utc()
+                / 60,
+        ))
     }
 
     /// [`Date.prototype.setDate ( date )`][local] and
@@ -1476,9 +1483,16 @@ impl Date {
     }
 }
 
-// TODO perhaps here we can pass in a method that will retrieve the time on a specific platform here
+// TODO perhaps here we can pass in a method that will retrieve the time on a specific platform
+#[cfg(target_arch = "wasm32")]
 fn naive_date_time_now() -> NaiveDateTime {
-    chrono::NaiveDateTime::from_timestamp_opt((ic_cdk::api::time() / 1_000_000_000) as i64, 0).unwrap()
+    chrono::NaiveDateTime::from_timestamp_opt((ic_cdk::api::time() / 1_000_000_000) as i64, 0)
+        .unwrap()
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn naive_date_time_now() -> NaiveDateTime {
+    chrono::NaiveDateTime::from_timestamp_opt((0 / 1_000_000_000) as i64, 0).unwrap()
 }
 
 fn utc_date_time_from_naive_date_time(naive_date_time: NaiveDateTime) -> DateTime<Utc> {
@@ -1486,5 +1500,6 @@ fn utc_date_time_from_naive_date_time(naive_date_time: NaiveDateTime) -> DateTim
 }
 
 fn local_date_time_from_naive_date_time(naive_date_time: NaiveDateTime) -> DateTime<Local> {
-    chrono::DateTime::<Local>::from_utc(naive_date_time, FixedOffset::east_opt(0).unwrap()) // For canisters we assume the UTC timezone only
+    chrono::DateTime::<Local>::from_utc(naive_date_time, FixedOffset::east_opt(0).unwrap())
+    // For canisters we assume the UTC timezone only
 }
