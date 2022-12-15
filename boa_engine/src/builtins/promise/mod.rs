@@ -58,17 +58,22 @@ macro_rules! if_abrupt_reject_promise {
 
 pub(crate) use if_abrupt_reject_promise;
 
+/// PromiseState
 #[derive(Debug, Clone, Trace, Finalize)]
-pub(crate) enum PromiseState {
+pub enum PromiseState {
+    /// Pending
     Pending,
+    /// Fulfilled
     Fulfilled(JsValue),
+    /// Rejected
     Rejected(JsValue),
 }
 
 /// The internal representation of a `Promise` object.
 #[derive(Debug, Clone, Trace, Finalize)]
 pub struct Promise {
-    promise_state: PromiseState,
+    /// promise_state
+    pub promise_state: PromiseState,
     promise_fulfill_reactions: Vec<ReactionRecord>,
     promise_reject_reactions: Vec<ReactionRecord>,
     promise_is_handled: bool,
@@ -1439,7 +1444,7 @@ impl Promise {
     /// # Panics
     ///
     /// Panics if `Promise` is not pending.
-    fn fulfill_promise(&mut self, value: &JsValue, context: &mut Context) {
+    pub fn fulfill_promise(&mut self, value: &JsValue, context: &mut Context) {
         // 1. Assert: The value of promise.[[PromiseState]] is pending.
         assert!(
             matches!(self.promise_state, PromiseState::Pending),
