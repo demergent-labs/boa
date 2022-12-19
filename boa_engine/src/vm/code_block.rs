@@ -60,7 +60,7 @@ unsafe impl Readable for f64 {}
 pub struct CodeBlock {
     /// Name of this function
     #[unsafe_ignore_trace]
-    pub name: Sym,
+    pub(crate) name: Sym,
 
     /// Indicates if the function is an expression and has a binding identifier.
     pub(crate) has_binding_identifier: bool,

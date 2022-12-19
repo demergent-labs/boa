@@ -84,7 +84,7 @@ pub struct Context {
     pub(crate) realm: Realm,
 
     /// String interner in the context.
-    pub interner: Interner,
+    interner: Interner,
 
     /// console object state.
     #[cfg(feature = "console")]
@@ -101,8 +101,7 @@ pub struct Context {
     #[cfg(feature = "fuzz")]
     pub(crate) instructions_remaining: usize,
 
-    /// vm
-    pub vm: Vm,
+    pub(crate) vm: Vm,
 
     pub(crate) promise_job_queue: VecDeque<JobCallback>,
 
